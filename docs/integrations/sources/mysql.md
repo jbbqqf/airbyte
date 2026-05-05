@@ -16,8 +16,9 @@ The contents below include a 'Quick Start' guide, advanced setup steps, and refe
 Here is an outline of the minimum required steps to configure a MySQL connector:
 
 1. Create a dedicated read-only MySQL user with permissions for replicating data
-2. Create a new MySQL source in the Airbyte UI using CDC logical replication
-3. (Airbyte Cloud Only) Allow inbound traffic from Airbyte IPs
+2. Enable binary logging on your MySQL server
+3. Create a new MySQL source in the Airbyte UI
+4. (Airbyte Cloud only) Allow inbound traffic from Airbyte IPs
 
 Once this is complete, you will be able to select MySQL as a source for replicating data.
 
@@ -29,13 +30,13 @@ These steps create a dedicated read-only user for replicating data. Alternativel
 
 The following commands will create a new user:
 
-```roomsql
+```sql
 CREATE USER <user_name> IDENTIFIED BY 'your_password_here';
 ```
 
 Now, provide this user with read-only access to relevant schemas and tables:
 
-```roomsql
+```sql
 GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO <user_name>;
 ```
 
@@ -106,7 +107,7 @@ Now, click `Set up source` in the Airbyte UI. Airbyte will now test connecting t
 
 ### Change Data Capture \(CDC\)
 
-Airbyte uses logical replication of the [MySQL binlog](https://dev.mysql.com/doc/refman/8.0/en/binary-log.html) to incrementally capture deletes in addition to new and updated records. To learn more how Airbyte implements CDC, refer to [Change Data Capture (CDC)](https://docs.airbyte.com/understanding-airbyte/cdc/). We generally recommend configure your MySQL source with CDC whenever possible, as it provides:
+Airbyte uses logical replication of the [MySQL binlog](https://dev.mysql.com/doc/refman/8.0/en/binary-log.html) to incrementally capture deletes in addition to new and updated records. To learn more how Airbyte implements CDC, refer to [Change Data Capture (CDC)](https://docs.airbyte.com/understanding-airbyte/cdc/). We generally recommend configuring your MySQL source with CDC whenever possible, as it provides:
 
 - A record of deletions, if needed.
 - Scalable replication to large tables (1 TB and more).
@@ -166,6 +167,56 @@ ssh-keygen -t rsa -m PEM -f myuser_rsa
 
 This produces the private key in pem format, and the public key remains in the standard format used by the `authorized_keys` file on your bastion host. The public key should be added to your bastion host to whichever user you want to use with Airbyte. The private key is provided via copy-and-paste to the Airbyte connector configuration screen, so it may log in to the bastion.
 
+## Optional Configuration
+
+<FieldAnchor field="table_filters">
+
+### Table Filters
+
+You can optionally filter which tables are replicated by specifying table filter patterns. Each filter includes a database name and one or more SQL `LIKE` patterns for table names. Only tables matching at least one pattern are included in the sync.
+
+</FieldAnchor>
+
+<FieldAnchor field="checkpoint_target_interval_seconds">
+
+### Checkpoint Target Time Interval
+
+Controls how often (in seconds) the connector creates checkpoints during a sync. The default is 300 seconds (5 minutes). Lowering this value increases checkpoint frequency, which can improve resilience for long-running syncs but may slightly reduce throughput.
+
+</FieldAnchor>
+
+<FieldAnchor field="check_privileges">
+
+### Check Table and Column Access Privileges
+
+When enabled (the default), the connector checks access privileges for each table during schema discovery and excludes inaccessible tables and columns. In large schemas with many tables, this can slow down schema discovery. Disable this option if discovery is timing out and you are confident the configured user has access to all relevant tables.
+
+</FieldAnchor>
+
+<FieldAnchor field="max_db_connections">
+
+### Max Concurrent Queries to Database
+
+Sets the maximum number of concurrent queries to the database. Leave empty to let Airbyte optimize performance automatically.
+
+</FieldAnchor>
+
+<FieldAnchor field="treat_tinyint1_as_integer">
+
+### Treat TINYINT(1) Columns as Integers
+
+MySQL doesn't have a native boolean column type. By convention, `TINYINT(1)` columns are used to store boolean values, and the MySQL JDBC driver reports them as boolean by default. Some databases use `TINYINT(1)` to store small integers (-128 to 127) instead.
+
+This option is disabled by default, which preserves the historical behavior of mapping `TINYINT(1)` columns to boolean.
+
+Enable this option when your `TINYINT(1)` columns hold integer values that you want preserved in the destination. When enabled, the connector emits `TINYINT(1)` columns as integers in both standard and CDC syncs.
+
+:::caution
+Changing this setting on an existing connection alters the schema of affected streams. Reset the affected streams after toggling this option, and update any downstream consumers that expect boolean values.
+:::
+
+</FieldAnchor>
+
 ## Limitations & Troubleshooting
 
 To see connector limitations, or troubleshoot your MySQL connector, see more [in our MySQL troubleshooting guide](/integrations/sources/mysql/mysql-troubleshooting).
@@ -185,7 +236,7 @@ Any database or table encoding combination of charset and collation is supported
 | `bit(1)`                                  | boolean                |                                                                                                                |
 | `bit(>1)`                                 | base64 binary string   |                                                                                                                |
 | `boolean`                                 | boolean                |                                                                                                                |
-| `tinyint(1)`                              | boolean                |                                                                                                                |
+| `tinyint(1)`                              | boolean                | Mapped to integer when [Treat TINYINT(1) Columns as Integers](#treat-tinyint1-columns-as-integers) is enabled. |
 | `tinyint(>1)`                             | integer                |                                                                                                                |
 | `tinyint(>=1) unsigned`                   | integer                |                                                                                                                |
 | `smallint`                                | integer                |                                                                                                                |
@@ -228,14 +279,14 @@ Any database or table encoding combination of charset and collation is supported
 |:------------|:-----------|:------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------|
 | 3.52.1      | 2026-05-05 | [77787](https://github.com/airbytehq/airbyte/pull/77787)                                              | Make the hidden additional properties fields in spec optional. No functional change.                                                            |
 | 3.52.0      | 2026-05-05 | [77772](https://github.com/airbytehq/airbyte/pull/77772)                                              | Add a `treat_tinyint1_as_integer` connector setting that maps TINYINT(1) columns to integers in both snapshot and CDC reads (default unchanged).|
-| 3.51.6      | 2025-04-02 | [76050](https://github.com/airbytehq/airbyte/pull/76050)                                              | Handle sentinel values in GUID primary key columns during partition splitting.                                                                  |
+| 3.51.6      | 2026-04-29 | [76050](https://github.com/airbytehq/airbyte/pull/76050)                                              | Handle sentinel values in GUID primary key columns during partition splitting.                                                                  |
 | 3.51.5      | 2025-11-14 | [69228](https://github.com/airbytehq/airbyte/pull/69228)                                              | Add table filtering                                                                                                                             |
 | 3.51.4      | 2025-11-12 | [69284](https://github.com/airbytehq/airbyte/pull/69284)                                              | Improve CDC shutdown to prevent loss of records in high velocity tables                                                                         |
 | 3.51.3      | 2025-11-05 | [69177](https://github.com/airbytehq/airbyte/pull/69177)                                              | Fix a bug in CDC snapshot queries leading to omission of the first record in some cases.                                                        |
 | 3.51.2      | 2025-11-04 | [69104](https://github.com/airbytehq/airbyte/pull/69104)                                              | Better partitioning for tables with GUID string primary key.                                                                                    |
 | 3.51.1      | 2025-10-28 | [68652](https://github.com/airbytehq/airbyte/pull/68652)                                              | Bump CDK version to the latest to resolve issue with database Views in CDC mode.                                                                |
-| 3.51.0      | 2025-09-24 | [66515](https://github.com/airbytehq/airbyte/pull/66515)                                              | Bump to the latest CDK for improved Protobuf encoding in socket mode.                                                                           |
-| 3.50.9      | 2025-09-24 | [66515](https://github.com/airbytehq/airbyte/pull/66515)                                              | Fix CDC decorating fields encoding to Protobuf                                                                                                  |
+| 3.51.0      | 2025-10-21 | [68094](https://github.com/airbytehq/airbyte/pull/68094)                                              | Bump to the latest CDK for improved Protobuf encoding in socket mode.                                                                           |
+| 3.50.9      | 2025-10-07 | [67151](https://github.com/airbytehq/airbyte/pull/67151)                                              | Fix CDC decorating fields encoding to Protobuf                                                                                                  |
 | 3.50.8      | 2025-09-24 | [66515](https://github.com/airbytehq/airbyte/pull/66515)                                              | Fix division by zero in partition creation when sampling produces no split boundaries.                                                          |
 | 3.50.7      | 2025-09-11 | [66179](https://github.com/airbytehq/airbyte/pull/66179)                                              | Bump to the latest CDK fixing protobuf encoding of certain column types                                                                         |
 | 3.50.6      | 2025-08-13 | [64569](https://github.com/airbytehq/airbyte/pull/64569)                                              | Moved db version logging from connector to new CDK version                                                                                      |

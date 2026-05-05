@@ -24,7 +24,7 @@ _where_ it is deployed.
 
 #### Digital Ocean MySQL
 
-Digital Ocean's managed MySQL servers, by default, will clear the binary logs periodically, outside of the replication settings within the MySQL server.. Contact Digital Ocean support to disable this feature if you wish to use CDC replication with Airbyte.
+Digital Ocean's managed MySQL servers, by default, will clear the binary logs periodically, outside of the replication settings within the MySQL server. Contact Digital Ocean support to disable this feature if you wish to use CDC replication with Airbyte.
 
 #### PlanetScale
 
@@ -108,7 +108,7 @@ Global transaction identifiers \(GTIDs\) uniquely identify transactions that occ
 
 ### (Advanced) Setting up initial CDC waiting time
 
-The MySQl connector may need some time to start processing the data in the CDC mode in the following scenarios:
+The MySQL connector may need some time to start processing the data in the CDC mode in the following scenarios:
 
 - When the connection is set up for the first time and a snapshot is needed
 - When the connector has a lot of change logs to process
@@ -119,7 +119,7 @@ If you know there are database changes to be synced, but the connector cannot re
 
 ### (Advanced) Set up server timezone
 
-In CDC mode, the MySQl connector may need a timezone configured if the existing MySQL database been set up with a system timezone that is not recognized by the [IANA Timezone Database](https://www.iana.org/time-zones).
+In CDC mode, the MySQL connector may need a timezone configured if the existing MySQL database has been set up with a system timezone that is not recognized by the [IANA Timezone Database](https://www.iana.org/time-zones).
 
 In this case, you can configure the server timezone to the equivalent IANA timezone compliant timezone. (e.g. CEST -> Europe/Berlin).
 
