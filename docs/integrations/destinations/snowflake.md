@@ -21,8 +21,7 @@ By default, Snowflake allows users to connect to the service from any computer o
 A security administrator (i.e. users with the SECURITYADMIN role) or higher can create a network
 policy to allow or deny access to a single IP address or a list of addresses.
 
-If you have any issues connecting with Airbyte Cloud please make sure that the list of IP addresses
-is on the allowed list
+If you have any issues connecting with Airbyte Cloud, make sure that the [Airbyte Cloud IP addresses](/platform/operating-airbyte/ip-allowlist) are on your allow list.
 
 To determine whether a network policy is set on your account or for a specific user, execute the
 _SHOW PARAMETERS_ command.
@@ -39,8 +38,8 @@ SHOW PARAMETERS LIKE 'network_policy' IN ACCOUNT;
 SHOW PARAMETERS LIKE 'network_policy' IN USER <username>;
 ```
 
-To read more please check official
-[Snowflake documentation](https://docs.snowflake.com/en/user-guide/network-policies.html#)
+To read more, check the official
+[Snowflake documentation](https://docs.snowflake.com/en/user-guide/network-policies.html)
 
 ## Setup guide
 
@@ -51,7 +50,7 @@ entities (a warehouse, database, schema, user, and role) with the `OWNERSHIP` pe
 data into Snowflake, track costs pertaining to Airbyte, and control permissions at a granular level.
 
 You can use the following script in a new
-[Snowflake worksheet](https://docs.snowflake.com/en/user-guide/ui-worksheet.html) to create the
+[Snowsight worksheet](https://docs.snowflake.com/en/user-guide/ui-snowsight-worksheets-gs) to create the
 entities:
 
 1.  [Log into your Snowflake account](https://www.snowflake.com/login/).
@@ -115,8 +114,7 @@ to role identifier($airbyte_role);
 commit;
 ```
 
-3. Run the script using the [Worksheet page](https://docs.snowflake.com/en/user-guide/ui-worksheet.html) or [Snowsight](https://docs.snowflake.com/en/user-guide/ui-snowsight-gs.html).
-  Make sure to select the **All Queries** checkbox if using the Classic Console or select and highlight the entire query if you are using Snowsight.
+3. Run the script using [Snowsight](https://docs.snowflake.com/en/user-guide/ui-snowsight-gs.html). Select and highlight the entire query before running it.
 
 Note: Our integration automatically creates the necessary schemas in your Snowflake destination database.
 To enable this, ensure the connection user has `CREATE SCHEMA` privileges on the target database.
@@ -151,7 +149,7 @@ username/password or key pair authentication:
 | [JDBC URL Params](https://docs.snowflake.com/en/user-guide/jdbc-parameters.html) (Optional) | Additional properties to pass to the JDBC URL string when connecting to the database formatted as `key=value` pairs separated by the symbol `&`. Example: `key1=value1&key2=value2&key3=value3` |
 | Legacy raw tables (Optional) | Write the legacy raw tables format for backwards compatibility with older versions of this connector. See [Output schema](#output-schema). The data format in `_airbyte_data` is fairly stable but there are no guarantees that other metadata columns will remain the same in future versions. |
 | Airbyte Internal Table Dataset Name (Optional) | The schema used for Airbyte's internal tables. In legacy raw tables mode, the raw tables are stored in this schema. Defaults to `airbyte_internal`. |
-| Trim Whitespace from String Fields (Optional) | Whether Snowflake should trim leading and trailing whitespace from fields during data loading. Disable this option if leading or trailing whitespace in string fields is meaningful and should be preserved. |
+| Trim Whitespace from String Fields (Optional) | Whether Snowflake should trim leading and trailing whitespace from fields during data loading. Disable this option if leading or trailing whitespace in string fields is meaningful and should be preserved. Defaults to enabled. |
 | [Data Retention Period](https://docs.snowflake.com/en/user-guide/data-time-travel#data-retention-period) (Optional) | The number of days of Snowflake Time Travel to enable on tables. A nonzero value incurs increased storage costs in your Snowflake instance. Defaults to `1`. |
 
 ### Key pair authentication
@@ -288,7 +286,8 @@ This destination supports [namespaces](https://docs.airbyte.com/platform/using-a
 
 | Version         | Date       | Pull Request                                               | Subject                                                                                                                                                                                |
 |:----------------|:-----------|:-----------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 4.0.41          | 2026-05-06 | [77795](https://github.com/airbytehq/airbyte/pull/77795)   | Add option to preserve Snowflake whitespace                                                                                                                                            |
+| 4.0.41          | 2026-05-07 | [77795](https://github.com/airbytehq/airbyte/pull/77795)   | Add option to preserve Snowflake whitespace                                                                                                                                            |
+| 4.0.40          | 2026-05-01 | [77673](https://github.com/airbytehq/airbyte/pull/77673)   | Upgrade CDK to 1.0.11. Default timestamp parsing is now handled by the CDK.                                                                                                            |
 | 4.0.40-rc.1     | 2026-04-27 | [76405](https://github.com/airbytehq/airbyte/pull/76405)   | Upgrade CDK to 1.0.9. Enable fast timestamp coercion. Progressive rollout.                                                                                                             |
 | 4.0.39          | 2026-03-13 | [74715](https://github.com/airbytehq/airbyte/pull/74715)   | Drop temp table after successful upsert to prevent duplicate records                                                                                                                   |
 | 4.0.38          | 2026-02-25 | [74041](https://github.com/airbytehq/airbyte/pull/74041)   | Upgrade CDK to 1.0.2 and base image to 2.0.4 for CVE patches                                                                                                                           |
