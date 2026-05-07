@@ -52,7 +52,7 @@ to your MSSQL instance is via the check connection tool in the UI.
 This step is optional but highly recommended to allow for better permission control and auditing.
 Alternatively, you can use Airbyte with an existing user in your database.
 
-### 3. Your database user should now be ready for use with Airbyte!
+### 3. Your database user should now be ready for use with Airbyte
 
 ### Airbyte Cloud
 
@@ -339,10 +339,9 @@ to the Airbyte connector configuration screen, so it may log in to the bastion.
 ## Data type mapping
 
 MSSQL data types are mapped to the following data types when synchronizing data. You can check the
-test values examples
-[here](https://github.com/airbytehq/airbyte/blob/master/airbyte-integrations/connectors/source-mssql/src/test/kotlin/io/airbyte/integrations/source/mssql/MsSqlServerDatatypeIntegrationTest.kt).
-If you can't find the data type you are looking for or have any problems feel free to add a new
-test!
+[data type mapping test values](https://github.com/airbytehq/airbyte/blob/master/airbyte-integrations/connectors/source-mssql/src/test/kotlin/io/airbyte/integrations/source/mssql/MsSqlServerDatatypeIntegrationTest.kt).
+If you can't find the data type you are looking for or have any problems, feel free to add a new
+test.
 
 | MSSQL Type                                              | Resulting Type          | Notes |
 | :------------------------------------------------------ | :---------------------- | :---- |
@@ -399,13 +398,13 @@ and 0.4.18. As part of that spec change `replication_method` configuration param
 In Microsoft SQL source connector versions 0.4.17 and older, `replication_method` configuration
 parameter was saved in the configuration database as follows:
 
-```
+```json
 "replication_method": "STANDARD"
 ```
 
 Starting with version 0.4.18, `replication_method` configuration parameter is saved as follows:
 
-```
+```json
 "replication_method": {
     "method": "STANDARD"
 }
