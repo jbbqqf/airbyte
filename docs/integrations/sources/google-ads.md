@@ -112,14 +112,18 @@ If you are accessing your account through a Google Ads Manager account, you must
 5. Enter the **Developer Token** you obtained from Google.
 6. To authenticate your Google account, enter your Google application's **Client ID**, **Client Secret**, **Refresh Token**, and optionally, the **Access Token**.
 7. (Optional) Enter a comma-separated list of the **Customer ID(s)** for your account. These IDs are 10-digit numbers that uniquely identify your account. To find your Customer ID, please follow [Google's instructions](https://support.google.com/google-ads/answer/1704344). Leaving this field blank will replicate data from all connected accounts.
+
+   :::note
+   If you are accessing your account through a Google Ads Manager account, you must enter the [**Customer ID**](https://developers.google.com/google-ads/api/docs/concepts/call-structure#cid) of the Manager account.
+   :::
+
 8. (Optional) Enter customer statuses to filter customers. Leaving this field blank will replicate data from all accounts. Check [Google Ads documentation](https://developers.google.com/google-ads/api/reference/rpc/v20/CustomerStatusEnum.CustomerStatus) for more info.
 9. (Optional) Enter a **Start Date** using the provided datepicker, or by programmatically entering the date in YYYY-MM-DD format. The data added on and after this date will be replicated. (Default start date is 2 years ago)
 10. (Optional) You can use the **Custom GAQL Queries** field to enter a custom query using Google Ads Query Language. Click **Add** and enter your query, as well as the desired name of the table for this data in the destination. Multiple queries can be provided. For more information on formulating these queries, refer to our [guide below](#custom-query-understanding-google-ads-query-language).
-11. (Required for Manager accounts) If accessing your account through a Google Ads Manager account, you must enter the [**Customer ID**](https://developers.google.com/google-ads/api/docs/concepts/call-structure#cid) of the Manager account.
-12. (Optional) Enter a **Conversion Window**. This is the number of days after an ad interaction during which a conversion is recorded in Google Ads. For more information on this topic, see the section on [Conversion Windows](#note-on-conversion-windows) below, or refer to the [Google Ads Help Center](https://support.google.com/google-ads/answer/3123169?hl=en). This field defaults to 14 days.
-13. (Optional) Enter the **Number of Concurrent Threads** to use when syncing data. The connector uses 3 threads by default and supports values from 2 to 25. Increase this value for accounts with many customer accounts or selected streams. Decrease it if Google Ads API rate limits affect your syncs.
-14. (Optional) Enter an **End Date** in YYYY-MM-DD format. Any data added after this date will not be replicated. Leaving this field blank will replicate all data from the start date onward.
-15. Click **Set up source** and wait for the tests to complete.
+11. (Optional) Enter a **Conversion Window**. This is the number of days after an ad interaction during which a conversion is recorded in Google Ads. For more information on this topic, see the section on [Conversion Windows](#note-on-conversion-windows) below, or refer to the [Google Ads Help Center](https://support.google.com/google-ads/answer/3123169?hl=en). This field defaults to 14 days.
+12. (Optional) Enter the **Number of Concurrent Threads** to use when syncing data. The connector uses 3 threads by default and supports values from 2 to 25. Increase this value for accounts with many customer accounts or selected streams. Decrease it if Google Ads API rate limits affect your syncs.
+13. (Optional) Enter an **End Date** in YYYY-MM-DD format. Any data added after this date will not be replicated. Leaving this field blank will replicate all data from the start date onward.
+14. Click **Set up source** and wait for the tests to complete.
 
 <!-- /env:oss -->
 <HideInUI>
@@ -357,7 +361,7 @@ Due to a limitation in the Google Ads API which does not allow getting performan
 | Version     | Date       | Pull Request                                             | Subject                                                                                                                                                                |
 |:------------|:-----------|:---------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 4.2.6-rc.3 | 2026-05-07 | [77835](https://github.com/airbytehq/airbyte/pull/77835) | Update CDK to pre-release with runtime cap on concurrent partition generators to fix thread pool starvation deadlock |
-| 4.2.6-rc.2 | 2026-05-01 | [77663](https://github.com/airbytehq/airbyte/pull/77663) | Mount `TimeoutHTTPAdapter` on parent-stream sessions (`customer_client`, `customer_client_non_manager`, `accessible_accounts`) so the 5-minute HTTP socket timeout also covers parent-record fetches |
+| 4.2.6-rc.2 | 2026-05-04 | [77663](https://github.com/airbytehq/airbyte/pull/77663) | Apply the 5-minute HTTP socket timeout to parent-record fetches (`customer_client`, `customer_client_non_manager`, `accessible_accounts`) so it covers all Google Ads API calls |
 | 4.2.6-rc.1 | 2026-04-28 | [77514](https://github.com/airbytehq/airbyte/pull/77514) | Update CDK to pre-release with stderr heartbeat diagnostics and concurrent-source deadlock fix |
 | 4.2.5 | 2026-04-27 | [77037](https://github.com/airbytehq/airbyte/pull/77037) | Promoted release candidate to GA |
 | 4.2.5-rc.1 | 2026-04-27 | [76074](https://github.com/airbytehq/airbyte/pull/76074) | Update CDK to pre-release with deadlock fix, add 5-minute HTTP socket timeout, and retry HTTP 500 (transient internal error) responses from the Google Ads API |
